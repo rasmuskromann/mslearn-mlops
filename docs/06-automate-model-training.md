@@ -138,13 +138,24 @@ In this section, you connect your GitHub workflow to Azure Machine Learning and 
 
 	```yml
 	- name: Run Azure Machine Learning training job
-		run: az ml job create -f src/job.yml --stream --resource-group ${{vars.AZURE_RESOURCE_GROUP}} --workspace-name ${{vars.AZURE_WORKSPACE_NAME}}
+	  env:
+	    RESOURCE_GROUP: ${{ inputs.resource_group || vars.AZURE_RESOURCE_GROUP }}
+	    WORKSPACE_NAME: ${{ inputs.workspace_name || vars.AZURE_WORKSPACE_NAME }}
+	  run: |
+	    if [ -z "$RESOURCE_GROUP" ] || [ -z "$WORKSPACE_NAME" ]; then
+	      echo "::error::Set AZURE_RESOURCE_GROUP and AZURE_WORKSPACE_NAME repository variables or provide resource_group and workspace_name workflow inputs."
+	      exit 1
+	    fi
+	    az ml job create -f src/job.yml --stream --resource-group "$RESOURCE_GROUP" --workspace-name "$WORKSPACE_NAME"
 	```
 
 1. Save your changes, commit them to your local repository, and push the changes to the **main** branch of your fork.
 
 1. In GitHub, go to the **Actions** tab for your repository.
 1. Select the workflow defined in `manual-trigger-job.yml` and use **Run workflow** to start it manually.
+
+	Use the optional `resource_group` and `workspace_name` inputs to override the repository variables for a manual run. Leaving them blank uses the repository variables, which are also used for pull request runs.
+
 1. Wait for the workflow run to complete. Verify that the **Run Azure Machine Learning training job** step completes successfully.
 1. In Azure Machine Learning studio, select **Jobs** and confirm that a new job based on `src/job.yml` has run successfully. Review the job inputs, metrics, and logs.
 
@@ -202,4 +213,3 @@ When you finish exploring Azure Machine Learning and GitHub Actions, you should 
 1. At the top of the **Overview** page for your resource group, select **Delete resource group**.
 1. Enter the resource group name to confirm you want to delete it, and select **Delete**.
 1. In GitHub, you can also delete the repository you created from the `mslearn-mlops` template if you no longer need the workflows or sample code.
-
