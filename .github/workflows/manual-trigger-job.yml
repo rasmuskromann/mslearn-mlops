@@ -2,6 +2,15 @@ name: Manually trigger an Azure Machine Learning job
 
 on:
   workflow_dispatch:
+    inputs:
+      resource_group:
+        description: Resource group containing the Azure Machine Learning workspace
+        required: true
+        type: string
+      workspace_name:
+        description: Azure Machine Learning workspace containing the training data and compute
+        required: true
+        type: string
 
 jobs:
   train:
@@ -16,5 +25,7 @@ jobs:
       with:
         creds: ${{secrets.AZURE_CREDENTIALS}}
     - name: Run Azure Machine Learning training job 
-      run: az ml job create -f src/job.yml --stream --resource-group $ --workspace-name $
-
+      env:
+        RESOURCE_GROUP: ${{ inputs.resource_group }}
+        WORKSPACE_NAME: ${{ inputs.workspace_name }}
+      run: az ml job create -f src/job.yml --stream --resource-group "$RESOURCE_GROUP" --workspace-name "$WORKSPACE_NAME"
