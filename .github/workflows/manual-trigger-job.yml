@@ -1,19 +1,19 @@
 name: Manually trigger an Azure Machine Learning job
 
 on:
-    workflow_dispatch:
-    pull_request:
-        branches:
-            - main
-    inputs:
-      resource_group:
-        description: Resource group containing the Azure Machine Learning workspace
-        required: true
-        type: string
-      workspace_name:
-        description: Azure Machine Learning workspace containing the training data and compute
-        required: true
-        type: string
+  workflow_dispatch:
+  pull_request:
+      branches:
+          - main
+inputs:
+  resource_group:
+    description: Resource group containing the Azure Machine Learning workspace
+    required: true
+    type: string
+  workspace_name:
+    description: Azure Machine Learning workspace containing the training data and compute
+    required: true
+    type: string
 
 jobs:
   train:
